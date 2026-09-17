@@ -39,6 +39,18 @@ app.delete('/user', (req, res) => {
     res.send("User deleted successfully!!!");
 });
 
+// Route 7: Make a request to read the query params.
+app.get('/user', (req, res) => {
+    console.log(req.query);
+    res.send("User deleted successfully!!!");
+});
+
+// Route 8: Make a /create dynamic route and read the params ( route parameters ).
+app.get('/user/:userId', (req, res) => {
+    console.log(req.params);
+    res.send("User deleted successfully!!!");
+});
+
 
 // Server is listening on port 3000;
 app.listen(3000, () => {
