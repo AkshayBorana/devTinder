@@ -26,7 +26,7 @@ app.post("/signup", async (req, res) => {
  */
 app.get("/feed", async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find();
     if(!users.length) {
       res.status(404).send('Users not found');
     }
@@ -68,7 +68,26 @@ app.delete("/deleteUser", async (req, res) => {
   } catch (error) {
     res.status(400).send('Something went wrong.');
   }
-})
+});
+
+
+/**
+ * Update the user /PATCH API to update a user
+ */
+app.patch('/user', async (req, res) => {
+  const updateUser = req.body;
+  const userId = req.body.userId;
+  try {
+    const user = await User.findByIdAndUpdate({ _id: userId}, updateUser);
+    if(!user) {
+      res.status(404).send("User not found!");
+    }
+    res.status(200).send('User data updated successfully');
+  } catch (error) {
+    res.status(400).send('Something went wrong!');
+  }
+});
+
 
 /**
  * 1. Connect to the Db first and then listen to the server.
