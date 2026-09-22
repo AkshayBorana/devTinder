@@ -3,18 +3,16 @@ const app = express();
 const connectDB = require("./config/database");
 const User = require("./models/user");
 
+ // This middleware will run for all routes to read the JSON object ( converts JSON obj to Javascript Obj).
+app.use(express.json());
+
+
 /**
  * Create a user signup API, to save new user's to database.
  */
 app.post("/signup", async (req, res) => {
-  const newUser = {
-    firstName: "Virat",
-    lastName: "Kohli",
-    emailId: "viratkohli@gmail.com",
-    password: "12345",
-  };
+  const newUser = req.body;
   const user = new User(newUser);
-
   try {
     await user.save();
     res.send("User added successfully!");
