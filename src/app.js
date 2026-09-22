@@ -34,6 +34,40 @@ app.get("/feed", async (req, res) => {
   } catch (error) {
     res.status(400).send(`Something went wrong`)
   }
+});
+
+
+/**
+ * GET User by Id - GET /user.
+ */
+app.get("/user", async (req, res) => {
+  const userId = req.body._id;
+  try {
+    const user = await User.findById({ _id: userId });
+    if(!user) {
+      res.status(404).send('Users not found');
+    }
+    res.status(200).send(user)
+  } catch (error) {
+    res.status(400).send(`Something went wrong`)
+  }
+});
+
+
+/**
+ * Delete a user by userId
+ */
+app.delete("/deleteUser", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    const user = await User.findByIdAndDelete(userId);
+    if(!user) {
+      res.status(200).send('Error deleting the user.');
+    }
+    res.send(user);
+  } catch (error) {
+    res.status(400).send('Something went wrong.');
+  }
 })
 
 /**
