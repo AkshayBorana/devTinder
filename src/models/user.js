@@ -25,7 +25,14 @@ const userSchema = new mongoose.Schema({
         min: 18 // Only 18 years old users allowed to signup.  
     },
     gender: { 
-        type: String 
+        type: String,
+        lowercase: true,
+        validate: {
+            validator: (value) => {
+                return ["male", "female", "other"].includes(value);
+            },
+            message: "Please enter a valid Gender."
+        } 
     },
     photoUrl: { 
         type: String 
