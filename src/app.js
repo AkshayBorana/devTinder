@@ -72,7 +72,7 @@ app.delete("/deleteUser", async (req, res) => {
 
 
 /**
- * Update the user /PATCH API to update a user
+ * Update the user /PATCH API to update a user by userId
  */
 app.patch('/user', async (req, res) => {
   const updateUser = req.body;
@@ -83,6 +83,24 @@ app.patch('/user', async (req, res) => {
       res.status(404).send("User not found!");
     }
     res.status(200).send('User data updated successfully');
+  } catch (error) {
+    res.status(400).send('Something went wrong!');
+  }
+});
+
+/**
+ * Update user via user emailId
+ */
+app.patch("/user", async (req, res) => {
+  const user = req.body;
+  const emailId = user.emailId;
+  try {
+    const updatedUser = await User.findOneAndUpdate({emailId: emailId}, user);
+    if(!updatedUser) {
+      res.status(404).send('User not found!');
+    } else {
+      res.status(200).send('User data updated successfully!');
+    }
   } catch (error) {
     res.status(400).send('Something went wrong!');
   }
