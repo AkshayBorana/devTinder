@@ -74,19 +74,19 @@ app.delete("/deleteUser", async (req, res) => {
 /**
  * Update the user /PATCH API to update a user by userId
  */
-app.patch('/user', async (req, res) => {
-  const updateUser = req.body;
-  const userId = req.body.userId;
-  try {
-    const user = await User.findByIdAndUpdate({ _id: userId}, updateUser);
-    if(!user) {
-      res.status(404).send("User not found!");
-    }
-    res.status(200).send('User data updated successfully');
-  } catch (error) {
-    res.status(400).send('Something went wrong!');
-  }
-});
+// app.patch('/user', async (req, res) => {
+//   const updateUser = req.body;
+//   const userId = req.body.userId;
+//   try {
+//     const user = await User.findByIdAndUpdate({ _id: userId}, updateUser);
+//     if(!user) {
+//       res.status(404).send("User not found!");
+//     }
+//     res.status(200).send('User data updated successfully');
+//   } catch (error) {
+//     res.status(400).send('Something went wrong!');
+//   }
+// });
 
 /**
  * Update user via user emailId
@@ -95,7 +95,15 @@ app.patch("/user", async (req, res) => {
   const user = req.body;
   const emailId = user.emailId;
   try {
-    const updatedUser = await User.findOneAndUpdate({emailId: emailId}, user);
+    const updatedUser = await User.findOneAndUpdate(
+      {
+        emailId: emailId // emailId on which it will run the filteration.
+      }, 
+      user, // new updated user object
+      {
+        runValidators: true // custom options can be passed inside an object. runValidators makes sure validation/custom validations runs on updates/patches, unlike just working on new documents beign added to the DB.
+      }
+    );
     if(!updatedUser) {
       res.status(404).send('User not found!');
     } else {
