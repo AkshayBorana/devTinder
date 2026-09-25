@@ -42,7 +42,15 @@ const userSchema = new mongoose.Schema({
         default: "Your default description.",  // Default value that gets stored in the DB if user doen't provide one.
         maxLength: 200 // Take only 200 characters only.
     },
-    skills: { type: [String] },
+    skills: { 
+        type: [String],
+        validate: {
+            validator: (skills) => {
+                return skills.length <= 10;
+            },
+            message: "Only upto 10 skills are allowed."
+        }
+     },
     mobile: {
         type: Number,
         minLength: 10,
