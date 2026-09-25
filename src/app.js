@@ -14,6 +14,33 @@ app.post("/signup", async (req, res) => {
   const newUser = req.body;
   const user = new User(newUser);
   try {
+
+    // Added api level validation for required fields.
+    const { firstName, emailId, password, skills, age, about } = user;
+    if(!firstName.length || !emailId || !password) {
+      throw new Error("Please fill all required fields.")
+    }
+
+    // password min lenght check.
+    if(password?.length < 6) {
+      throw new Error('Password must be atleast 6 characters or more.');
+    }
+
+    // Check user's age ( only above 18 allowed )
+    if(age < 18) {
+      throw new Error("Only 18years above can signup.");
+    }
+
+    // Only allow user to enter 10skills.
+    if((Array.isArray(skills) && skills.length > 10)) {
+      throw new Error("Skills cannot be more then 10.");
+    }
+
+    // Description field cannot be more then 200 characters.
+    if(about.lenght > 200) {
+      throw new Error("Description caannot be more then 200 characters.");
+    }
+
     await user.save();
     res.send("User added successfully!");
   } catch (error) {
@@ -75,6 +102,7 @@ app.delete("/deleteUser", async (req, res) => {
  * Update the user /PATCH API to update a user by userId
  */
 app.patch("/user/:userId", async (req, res) => {
+  console.log(req.body);
   const updateUser = req.body;
   const userId = req.params?.userId;
 
@@ -92,10 +120,30 @@ app.patch("/user/:userId", async (req, res) => {
       allowed_fields.includes(k),
     );
 
+    // Check only allowed fields can be updated.
     if (!isUpdatedAllowed) {
       throw new Error("Update not allowed");
     }
 
+    // Gender must match.
+    const { gender, skills, password, about } = updateUser;
+    if(gender && !["male", "female", "other"].includes(gender)) {
+      throw new Error("Please add a valid Gender");
+    }
+
+    // Throw error if skills are exceed more then 10.
+    if(Array.isArray(skills) && skills.length > 10) {
+      throw new Error("Skills cannot be more then 10.");
+    }
+
+    // Password cannot be more less then 6 characters.
+    if(password && password.length < 6) {
+      throw new Error('Password must be atleast 6 characters or more.');
+    }
+
+    if(about && about.lenght > 200) {
+      throw new Error("Description cananot be more then 200 characters.");
+    }
     const user = await User.findByIdAndUpdate({ _id: userId }, updateUser, {
       runValidators: true, // custom options can be passed inside an object. runValidators makes sure validation/custom validations runs on updates/patches, unlike just working on new documents beign added to the DB.
     });

@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
         type: [String],
         validate: {
             validator: (skills) => {
-                return skills.length <= 10;
+                return Array.isArray(skills) && skills.length <= 10;
             },
             message: "Only upto 10 skills are allowed."
         }
