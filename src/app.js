@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const connectDB = require("./config/database");
 const User = require("./models/user");
+const validator = require('validator');
 
  // This middleware will run for all routes to read the JSON object ( converts JSON obj to Javascript Obj).
 app.use(express.json());
@@ -21,13 +22,18 @@ app.post("/signup", async (req, res) => {
       throw new Error("Please fill all required fields.")
     }
 
+    // Check if the emailIf is valid or not validator npm library used for this.
+    if(!validator.isEmail(emailId)) {
+      throw new Error("please enter a valid email.")
+    }
+
     // password min lenght check.
     if(password?.length < 6) {
       throw new Error('Password must be atleast 6 characters or more.');
     }
 
     // Check user's age ( only above 18 allowed )
-    if(age < 18) {
+    if((age < 18)) {
       throw new Error("Only 18years above can signup.");
     }
 
@@ -37,7 +43,7 @@ app.post("/signup", async (req, res) => {
     }
 
     // Description field cannot be more then 200 characters.
-    if(about.lenght > 200) {
+    if(about && about.lenght > 200) {
       throw new Error("Description caannot be more then 200 characters.");
     }
 
