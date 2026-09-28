@@ -3,6 +3,7 @@ const app = express();
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const validator = require('validator');
+const { validateSignUpData } = require('./utils/validation');
 
  // This middleware will run for all routes to read the JSON object ( converts JSON obj to Javascript Obj).
 app.use(express.json());
@@ -12,41 +13,16 @@ app.use(express.json());
  * Create a user signup API, to save new user's to database.
  */
 app.post("/signup", async (req, res) => {
-  const newUser = req.body;
-  const user = new User(newUser);
   try {
+    // STEP 1: First thing is to validate the data.
+    // write this validator func in try/catch. If error occurs catch will catch it and throw an error.
+    validateSignUpData(req);
+    // STEP 2: Encrypt password and then store in the the DB.
 
-    // Added api level validation for required fields.
-    const { firstName, emailId, password, skills, age, about } = user;
-    if(!firstName.length || !emailId || !password) {
-      throw new Error("Please fill all required fields.")
-    }
 
-    // Check if the emailIf is valid or not validator npm library used for this.
-    if(!validator.isEmail(emailId)) {
-      throw new Error("please enter a valid email.")
-    }
-
-    // password min lenght check.
-    if(password?.length < 6) {
-      throw new Error('Password must be atleast 6 characters or more.');
-    }
-
-    // Check user's age ( only above 18 allowed )
-    if((age < 18)) {
-      throw new Error("Only 18years above can signup.");
-    }
-
-    // Only allow user to enter 10skills.
-    if((Array.isArray(skills) && skills.length > 10)) {
-      throw new Error("Skills cannot be more then 10.");
-    }
-
-    // Description field cannot be more then 200 characters.
-    if(about && about.lenght > 200) {
-      throw new Error("Description caannot be more then 200 characters.");
-    }
-
+    const newUser = req.body;
+    const user = new User(newUser);
+    
     await user.save();
     res.send("User added successfully!");
   } catch (error) {
@@ -212,3 +188,58 @@ connectDB()
   .catch((error) => {
     console.log(`Error connecting ot the Database!!!`);
   });
+
+
+
+
+  /**
+ * Create a user signup API, to save new user's to database.
+ */
+// app.post("/signup", async (req, res) => {
+//   const newUser = req.body;
+//   const user = new User(newUser);
+
+//   // STEP 1: First thing is to validate the data.
+
+//   // STEP 2: Encrypt password and then store in the the DB.
+
+
+//   try {
+
+//     // Added api level validation for required fields.
+//     const { firstName, emailId, password, skills, age, about } = user;
+//     if(!firstName.length || !emailId || !password) {
+//       throw new Error("Please fill all required fields.")
+//     }
+
+//     // Check if the emailIf is valid or not validator npm library used for this.
+//     if(!validator.isEmail(emailId)) {
+//       throw new Error("please enter a valid email.")
+//     }
+
+//     // password min lenght check.
+//     if(password?.length < 6) {
+//       throw new Error('Password must be atleast 6 characters or more.');
+//     }
+
+//     // Check user's age ( only above 18 allowed )
+//     if((age < 18)) {
+//       throw new Error("Only 18years above can signup.");
+//     }
+
+//     // Only allow user to enter 10skills.
+//     if((Array.isArray(skills) && skills.length > 10)) {
+//       throw new Error("Skills cannot be more then 10.");
+//     }
+
+//     // Description field cannot be more then 200 characters.
+//     if(about && about.lenght > 200) {
+//       throw new Error("Description caannot be more then 200 characters.");
+//     }
+
+//     await user.save();
+//     res.send("User added successfully!");
+//   } catch (error) {
+//     res.status(400).send(`Error saving the User ${error.message}`);
+//   }
+// });
