@@ -45,6 +45,13 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
+
+    // If either of emailId or password is not present.
+    if(!emailId || !password) { 
+      throw new Error(`Please enter valid emailId and password to login`);
+    }
+
+    // Find user from emailId in DB 
     const user = await User.findOne({emailId});
     // Check if email id exists or not.
     if(!user) {
