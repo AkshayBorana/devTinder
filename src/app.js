@@ -5,9 +5,14 @@ const User = require("./models/user");
 const validator = require('validator');
 const { validateSignUpData } = require('./utils/validation');
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+var jwt = require('jsonwebtoken');
 
  // This middleware will run for all routes to read the JSON object ( converts JSON obj to Javascript Obj).
 app.use(express.json());
+
+// This middleware will parse all cookies,
+app.use(cookieParser());
 
 
 /**
@@ -60,6 +65,13 @@ app.post("/login", async (req, res) => {
     const hash = user.password;
     const isPasswordValid = await bcrypt.compare(password, hash);
     if(isPasswordValid) {
+
+      // Create a JWT token.
+      // SECRET_DEV@Tinder2026 is the secret key, will be needed while decoding back the jwt token.
+      const jwtToken = await jwt.sign({ _id: user._id }, "SECRET_DEV@Tinder2026");
+
+      // Add the JWT token into a Cookie and send the response back to the server.
+      res.cookie('token', jwtToken);
       res.send(`Login successfull!`);
     } else {
       throw new Error('Invalid credentials. Please try again!');
@@ -67,7 +79,32 @@ app.post("/login", async (req, res) => {
   } catch (error) {
     res.status(400).send(`Error: ${error.message}`);
   }
-})
+});
+
+
+/**
+ * Get user profile API
+ */
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
+
+    if (!token) {
+      throw new Error("Invalid token!");
+    }
+
+    const decodedMessage = await jwt.verify(token, "SECRET_DEV@Tinder2026");
+    const { _id } = decodedMessage;
+    const userProfile = await User.findById({ _id });
+    if (!userProfile) {
+      throw new Error("Error finding user profile. Please login again");
+    }
+    res.send(userProfile);
+  } catch (error) {
+    res.status(400).send("Something went wrong!");
+  }
+});
 
 
 /**
