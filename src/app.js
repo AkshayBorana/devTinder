@@ -1,105 +1,20 @@
 const express = require("express");
 const app = express();
 const connectDB = require("./config/database");
-const User = require("./models/user");
-const validator = require('validator');
-const { validateSignUpData } = require('./utils/validation');
-const bcrypt = require('bcrypt');
-const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
-const { userAuth } = require("./middlewares/auth");
+const cookieParser = require("cookie-parser");
 
-// This middleware will run for all routes to read the JSON object ( converts JSON obj to Javascript Obj).
-app.use(express.json());
-// This middleware will parse all cookies,
-app.use(cookieParser());
+// global middlewares, runs for all routes.
+app.use(express.json()); // Converts JSON obj to Javascript Obj.
+app.use(cookieParser()); // Parses all cookies.
 
+// Define Routers here.
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
 
-/**
- * Create a user signup API, to save new user's to database.
- */
-app.post("/signup", async (req, res) => {
-  try {
-    // STEP 1: First thing is to validate the data.
-    // write this validator func in try/catch. If error occurs catch will catch it and throw an error.
-    validateSignUpData(req);
-    // STEP 2: Encrypt password and then store in the the DB.
-    const {firstName, lastName, emailId, password, mobile} = req.body;
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    // Creating a new user object.
-    const newUser = {
-      firstName,
-      lastName,
-      emailId,
-      password: passwordHash,
-      mobile
-    }
-    // Creating a new instance of User model.
-    const user = new User(newUser);
-    await user.save();
-    res.send("User added successfully!");
-  } catch (error) {
-    res.status(400).send(`Error saving the User ${error.message}`);
-  }
-});
-
-/**
- * Login API
- */
-app.post("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
-
-    // If either of emailId or password is not present.
-    if(!emailId || !password) { 
-      throw new Error(`Please enter valid emailId and password to login`);
-    }
-
-    // Find user from emailId in DB 
-    const user = await User.findOne({emailId});
-    // Check if email id exists or not.
-    if(!user) {
-      throw new Error('User does not exists. Please signup!');
-    }
-    //User password validation moved to DB Schema methods.
-    const isPasswordValid = await user.validatePassword(password);
-    if(isPasswordValid) {
-
-      // Getting jwt token from User schema ( Added a off-loader function to DB)
-      const jwtToken = await user.getJWT();
-
-      // Add the JWT token into a Cookie and send the response back to the server.
-      res.cookie('token', jwtToken);
-      res.send(`Login successfull!`);
-    } else {
-      throw new Error('Invalid credentials. Please try again!');
-    }
-  } catch (error) {
-    res.status(400).send(`Error: ${error.message}`);
-  }
-});
-
-/**
- * Get user profile API
- */
-app.get("/profile", userAuth, async (req, res) => {
-  try {
-    const { user } = req;
-    res.send(user);
-  } catch (error) {
-    res.status(400).send("Something went wrong!");
-  }
-});
-
-/**
- * Send connection request.
- */
-app.post("/sendConnectionRequest", userAuth, async (req, res) => {
-  const { user } = req;
-  res.send(`${user.firstName} sent a connection request.`);
-})
-
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 
 /**
  * 1. Connect to the Db first and then listen to the server.
@@ -116,9 +31,6 @@ connectDB()
     console.log(`Error connecting ot the Database!!!`);
   });
 
-
-
-
 /**
  * Create a user signup API, to save new user's to database.
  */
@@ -129,7 +41,6 @@ connectDB()
 //   // STEP 1: First thing is to validate the data.
 
 //   // STEP 2: Encrypt password and then store in the the DB.
-
 
 //   try {
 
@@ -171,7 +82,6 @@ connectDB()
 //   }
 // });
 
-
 /**
  * Feed API - GET /feed Get all the users from the database.
  */
@@ -186,7 +96,6 @@ connectDB()
 //     res.status(400).send(`Something went wrong`)
 //   }
 // });
-
 
 /**
  * GET User by Id - GET /user.
@@ -204,7 +113,6 @@ connectDB()
 //   }
 // });
 
-
 /**
  * Delete a user by userId
  */
@@ -220,7 +128,6 @@ connectDB()
 //     res.status(400).send('Something went wrong.');
 //   }
 // });
-
 
 /**
  * Update the user /PATCH API to update a user by userId
@@ -280,7 +187,6 @@ connectDB()
 //   }
 // });
 
-
 /**
  * Update user via user emailId
  */
@@ -300,7 +206,7 @@ connectDB()
 //     const updatedUser = await User.findOneAndUpdate(
 //       {
 //         emailId: emailId // emailId on which it will run the filteration.
-//       }, 
+//       },
 //       user, // new updated user object
 //       {
 //         runValidators: true // custom options can be passed inside an object. runValidators makes sure validation/custom validations runs on updates/patches, unlike just working on new documents beign added to the DB.
