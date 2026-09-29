@@ -66,9 +66,8 @@ app.post("/login", async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, hash);
     if(isPasswordValid) {
 
-      // Create a JWT token.
-      // SECRET_DEV@Tinder2026 is the secret key, will be needed while decoding back the jwt token.
-      const jwtToken = await jwt.sign({ _id: user._id }, "SECRET_DEV@Tinder2026", { expiresIn: "1h"});
+      // Getting jwt token from User schema ( Added a off-loader function to DB)
+      const jwtToken = await user.getJWT();
 
       // Add the JWT token into a Cookie and send the response back to the server.
       res.cookie('token', jwtToken);
