@@ -8,7 +8,7 @@ const userAuth = async (req, res, next) => {
     if (!token) {
       throw new Error("Invalid token. Please login again!");
     }
-    // token verification.
+    // token verification, if verified it gives back the verified user.
     const decodedMessage = await jwt.verify(token, "SECRET_DEV@Tinder2026");
     // Find user from the DB.
     const { _id } = decodedMessage;
