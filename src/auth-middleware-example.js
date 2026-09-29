@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 // importing admin auth middleware
-const { adminAuth, userAuth } = require('./middlewares/auth');
+const { adminAuth, userAuth } = require('./middlewares/auth-example');
 
 // Creating a middleware to check if the user is authorized/not for only all /admin routes
 app.use('/admin', adminAuth);
