@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 // importing admin auth middleware
-const { adminAuth, userAuth } = require('./middlewares/auth-example');
+const { adminAuth, userAuthExample } = require('./middlewares/auth-example');
 
 // Creating a middleware to check if the user is authorized/not for only all /admin routes
 app.use('/admin', adminAuth);
@@ -18,7 +18,7 @@ app.delete("/admin/delete", (req, res) => {
 
 //app.use("/user", userAuth); OR directly add the userAuth middle ware to the route handler
 // Example to check if user is authoriized ot not..
-app.get("/user/getAllData", userAuth, (req, res) => {
+app.get("/user/getAllData", userAuthExample, (req, res) => {
     res.status(200).send("Sending all data successfully to user"); 
 });
 

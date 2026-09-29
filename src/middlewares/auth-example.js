@@ -9,7 +9,7 @@ const adminAuth = (req, res, next) => {
     }
 };
 
-const userAuth = (req, res, next) => {
+const userAuthExample = (req, res, next) => {
     const token = 'xyz';
     const isAdminAuthorized = token === 'xyz';
 
@@ -22,5 +22,5 @@ const userAuth = (req, res, next) => {
 
 module.exports = {
     adminAuth,
-    userAuth,
+    userAuthExample,
 }
