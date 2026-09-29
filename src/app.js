@@ -62,8 +62,8 @@ app.post("/login", async (req, res) => {
     if(!user) {
       throw new Error('User does not exists. Please signup!');
     }
-    const hash = user.password;
-    const isPasswordValid = await bcrypt.compare(password, hash);
+    //User password validation moved to DB Schema methods.
+    const isPasswordValid = await user.validatePassword(password);
     if(isPasswordValid) {
 
       // Getting jwt token from User schema ( Added a off-loader function to DB)
