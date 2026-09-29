@@ -68,7 +68,7 @@ app.post("/login", async (req, res) => {
 
       // Create a JWT token.
       // SECRET_DEV@Tinder2026 is the secret key, will be needed while decoding back the jwt token.
-      const jwtToken = await jwt.sign({ _id: user._id }, "SECRET_DEV@Tinder2026");
+      const jwtToken = await jwt.sign({ _id: user._id }, "SECRET_DEV@Tinder2026", { expiresIn: "1h"});
 
       // Add the JWT token into a Cookie and send the response back to the server.
       res.cookie('token', jwtToken);
@@ -92,6 +92,15 @@ app.get("/profile", userAuth, async (req, res) => {
     res.status(400).send("Something went wrong!");
   }
 });
+
+/**
+ * Send connection request.
+ */
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
+  const { user } = req;
+  res.send(`${user.firstName} sent a connection request.`);
+})
+
 
 /**
  * 1. Connect to the Db first and then listen to the server.
