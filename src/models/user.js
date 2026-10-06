@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true, // Makes the field required
       minLength: 4,
-      maxLength: 30
+      maxLength: 30,
+      index: true
     },
     lastName: {
       type: String,
@@ -65,8 +66,7 @@ const userSchema = new mongoose.Schema(
     },
     mobile: {
       type: Number,
-      minLength: 10,
-      unique: true
+      minLength: 10
     },
   },
   { timestamps: true },
