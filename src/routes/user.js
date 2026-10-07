@@ -14,7 +14,7 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
     const connectionRequests = await ConnectionRequest.find({
       toUserId: loggedInUser._id,
       status: "interested",
-    });
+    }).populate("fromUserId", ["firstName", "lastName", "photoUrl", "about", "skills"]); // This will give us the first name and last name of the user who sent the request.
 
     if (!connectionRequests || !connectionRequests?.length) {
       return res.status(404).json({ message: `No requests found!` });
