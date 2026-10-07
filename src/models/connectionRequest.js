@@ -20,6 +20,9 @@ const connectionRequestSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+// Adding compound indexing to fromUserId and touserId.
+connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+
 // To not allow user to send a connection request to itslef.
 connectionRequestSchema.pre("save", function() {
     const connectionRequest = this;
