@@ -2,6 +2,7 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const userRouter = express.Router();
 const ConnectionRequest = require("../models/connectionRequest");
+const User = require("../models/user");
 
 /**
  * Get connection requests a loggedin user has received ( only with status -> interested).
@@ -31,6 +32,9 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   }
 });
 
+/**
+ * Dislay user's connections with which user has matched.
+ */
 userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
@@ -46,7 +50,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
         "lastName",
         "photoUrl",
         "about",
-        "skills",
+        "skills"
       ])
       .populate("toUserId", [
         "firstName",
@@ -56,7 +60,8 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
         "skills",
       ]);
 
-    const data = connectionRequests.map((el) => {
+    const data = connectionRequests
+    .map((el) => {
         if(el.fromUserId._id.toString() === loggedInUser._id.toString()) {
             return el.toUserId;
         }
@@ -74,5 +79,43 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     res.status(400).send(`Error: ${error.message}`);
   }
 });
+
+
+/**
+ * Feed API
+ */
+userRouter.get('/user/feed', userAuth, async (req, res) => {
+
+    try {
+        const loggedInUser = req.user;
+
+        const sentOrReceivedRequests = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: loggedInUser._id },
+                { toUserId: loggedInUser._id }
+            ]
+        }).select("fromUserId toUserId");
+
+        const hideUsersFromFeed = new Set();
+
+        sentOrReceivedRequests.forEach(req => {
+            hideUsersFromFeed.add(req.fromUserId );
+            hideUsersFromFeed.add(req.toUserId.toString());
+        });
+
+        const usersFeed = await User.find({
+            $and: [ 
+                {_id: { $nin: Array.from(sentOrReceivedRequests) }}, 
+                { _id: { $ne: loggedInUser._id } }
+            ]
+        }).select(["firstName", "lastName", "photoUrl", "about", "age", "skills"]);
+
+        res.send(usersFeed);
+
+
+    } catch (error) {
+        res.status(400).json({ message: `Error: ${error.message}` });
+    }
+})
 
 module.exports = userRouter;
