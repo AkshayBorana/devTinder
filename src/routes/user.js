@@ -89,6 +89,11 @@ userRouter.get('/user/feed', userAuth, async (req, res) => {
     try {
         const loggedInUser = req.user;
 
+        const page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+        limit = limit > 10 ? 10 : limit; // Adding validation to always set limit to 10 no matter. 
+        const skipNumber = (page -1) * limit;
+
         const sentOrReceivedRequests = await ConnectionRequest.find({
             $or: [
                 { fromUserId: loggedInUser._id },
@@ -108,7 +113,8 @@ userRouter.get('/user/feed', userAuth, async (req, res) => {
                 {_id: { $nin: Array.from(sentOrReceivedRequests) }}, 
                 { _id: { $ne: loggedInUser._id } }
             ]
-        }).select(["firstName", "lastName", "photoUrl", "about", "age", "skills"]);
+        }).select(["firstName", "lastName", "photoUrl", "about", "age", "skills"])
+        .skip(skipNumber).limit(limit);
 
         res.send(usersFeed);
 
@@ -117,5 +123,16 @@ userRouter.get('/user/feed', userAuth, async (req, res) => {
         res.status(400).json({ message: `Error: ${error.message}` });
     }
 })
+
+
+
+// feed?page=1&limit=10 => 1-10 .skip(0) & .limit(10)
+
+// feed?page=2&limit=10 => 11-20 .skip(10) & .limit(10)
+
+// feed?page=3&limit=10 => 21-30 .skip(20) & .limit(10)
+
+// skip formula => (page - 1) * limit;
+
 
 module.exports = userRouter;
