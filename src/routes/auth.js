@@ -57,12 +57,12 @@ authRouter.post("/login", async (req, res) => {
     if (isPasswordValid) {
       // Getting jwt token from User schema ( Added a off-loader function to DB)
       const jwtToken = await user.getJWT();
-
+      const { password, ...restUser } = user.toObject();
       // Add the JWT token into a Cookie and send the response back to the server.
       res.cookie("token", jwtToken);
       res.status(200).json({
-        message: `${user.firstName} loggedin successfully`,
-        data: user 
+        message: `${restUser.firstName} loggedin successfully`,
+        data: restUser 
       });
     } else {
       throw new Error("Invalid credentials. Please try again!");
