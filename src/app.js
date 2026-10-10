@@ -2,8 +2,13 @@ const express = require("express");
 const app = express();
 const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 // global middlewares, runs for all routes.
+app.use(cors({
+   origin: 'http://localhost:5173',
+   credentials: true
+}));
 app.use(express.json()); // Converts JSON obj to Javascript Obj.
 app.use(cookieParser()); // Parses all cookies.
 

@@ -60,7 +60,10 @@ authRouter.post("/login", async (req, res) => {
 
       // Add the JWT token into a Cookie and send the response back to the server.
       res.cookie("token", jwtToken);
-      res.send(`Login successfull!`);
+      res.status(200).json({
+        message: `${user.firstName} loggedin successfully`,
+        data: user 
+      });
     } else {
       throw new Error("Invalid credentials. Please try again!");
     }
