@@ -13,7 +13,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
     const { user } = req;
     res.send(user);
   } catch (error) {
-    res.status(400).send("Something went wrong!");
+    res.status(400).json( { message: "Something went wrong. Please login again!", error} );
   }
 });
 
