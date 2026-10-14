@@ -50,7 +50,9 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
         "lastName",
         "photoUrl",
         "about",
-        "skills"
+        "skills",
+        "age",
+        "gender"
       ])
       .populate("toUserId", [
         "firstName",
@@ -58,6 +60,8 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
         "photoUrl",
         "about",
         "skills",
+        "age",
+        "gender"
       ]);
 
     const data = connectionRequests
