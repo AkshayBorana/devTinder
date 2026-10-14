@@ -19,7 +19,8 @@ userRouter.get("/user/requests/received", userAuth, async (req, res) => {
       "lastName",
       "photoUrl",
       "about",
-      "skills",
+      "age",
+      "gender"
     ]); // This will give us the first name and last name of the user who sent the request.
 
     if (!connectionRequests || !connectionRequests?.length) {
